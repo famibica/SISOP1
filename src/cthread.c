@@ -6,11 +6,11 @@
 #include <stdlib.h>
 
 /* Definir os estados que threads podem ter */
-#DEFINE CRIACAO 0
-#DEFINE APTO 1
-#DEFINE EXECUCAO 2
-#DEFINE BLOQUEADO 3
-#DEFINE TERMINO 4
+#define CRIACAO 0
+#define APTO 1
+#define EXECUCAO 2
+#define BLOQUEADO 3
+#define TERMINO 4
 
 
 /* VARIAVEIS GLOBAIS */
