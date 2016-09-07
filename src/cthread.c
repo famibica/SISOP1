@@ -5,13 +5,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* Definir os estados que threads podem ter */
+#DEFINE CRIACAO 0
+#DEFINE APTO 1
+#DEFINE EXECUCAO 2
+#DEFINE BLOQUEADO 3
+#DEFINE TERMINO 4
+
+
+/* VARIAVEIS GLOBAIS */
+int tid = 1; // Indica quantas threads já foram criadas e quais indices podem ser usadas
+
 /*
 	CCREATE
     Cria uma nova thread
 */
 int ccreate(void* (*start)(void*), void *arg)
 {
-    return -1;
+    
+    TCB_t *newThread = (TCB_t*) malloc(sizeof(TCB_t));
+    newThread->tid = tid++;
+    newThread->state = APTO;
+    newThread->ticket = 1; // Valor dummie enquanto espera a funcao do cechin
+    newThread->context = NULL; // nao sei que merda eh essa
+    
+    return newThread->tid;
 }
 
 /*
