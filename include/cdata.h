@@ -4,6 +4,8 @@
  * Esse arquivo pode ser modificado. ENTRETANTO, deve ser utilizada a TCB fornecida
  *
  */
+#include <ucontext.h>
+
 #ifndef __cdata__
 #define __cdata__
 

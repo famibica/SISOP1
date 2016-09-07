@@ -1,3 +1,5 @@
+
+
 /*
  * cthread.h: arquivo de inclusão com os protótipos das funções a serem
  *            implementadas na realização do trabalho.
@@ -9,6 +11,8 @@
  */
 #ifndef __cthread__
 #define __cthread__
+
+#include "support.h" //Adicionar outros arquivos .h
 
 typedef struct s_sem {
 	int	count;	// indica se recurso está ocupado ou não (livre > 0, ocupado = 0)
