@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/fila2.h"
+#include "../include/support.h"
 #include "../include/cthread.h"
 
 //Recebe um inteiro e imprime ele e os dez próximos números
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 	t2 = ccreate(SinalizaFim, (void*)&t2);	//criacao da thread 2
 
 	//A execução somente volta para main apos a thread2 acabar
-	cjoin(t2);
+	//cjoin(t2);
 
 	printf("\nPrograma encerrado com sucesso!");
 

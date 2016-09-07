@@ -4,6 +4,8 @@
  Marcelo H. Torres
  */
 
+#define _XOPEN_SOURCE 600 // Devido ao erro de compilacao isto teve que ser adicionado
+
 
 #include "../include/cthread.h"
 #include "../include/cdata.h"
@@ -34,7 +36,9 @@ int ccreate(void* (*start)(void*), void *arg)
     newThread->tid = tid++;
     newThread->state = APTO;
     newThread->ticket = 1; // Valor dummie enquanto espera a funcao do cechin
-    newThread->context = NULL; // nao sei que merda eh essa
+    //newThread->context = NULL; // nao sei que merda eh essa
+    
+    tid++;
     
     return newThread->tid;
 }
