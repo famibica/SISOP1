@@ -1,4 +1,4 @@
-#
+
 # Makefile ESQUELETO
 #
 # OBRIGATÓRIO ter uma regra "all" para geração da biblioteca e de uma
@@ -11,23 +11,26 @@
 # 
 
 CC=gcc
-LIB_DIR=./lib
-INC_DIR=./include
-BIN_DIR=./bin
-SRC_DIR=./src
+LIB_DIR=./lib/
+INC_DIR=./include/
+BIN_DIR=./bin/
+SRC_DIR=./src/
 
-all: regra1 regra2 regran
+all: lib
 
-regra1: #dependências para a regra1
-	$(CC) -o $(BIN_DIR)regra1 $(SRC_DIR)regra1.c -Wall
+lib: cthread.o cdata.o
+	ar crs $(LIB_DIR)libthread.a $(BIN_DIR)support.o $(BIN_DIR)cdata.o $(BIN_DIR)cthread.o
 
-regra2: #dependências para a regra2
-	$(CC) -o $(BIN_DIR)regra2 $(SRC_DIR)regra2.c -Wall
+cthread.o: $(SRC_DIR)cthread.c
+	$(CC) -c $(SRC_DIR)cthread.c -Wall -o $(BIN_DIR)cthread.o
 
-regran: #dependências para a regran
-	$(CC) -o $(BIN_DIR)regran $(SRC_DIR)regran.c -Wall
+cdata.o: $(SRC_DIR)cdata.c
+	$(CC) -c $(SRC_DIR)cdata.c -Wall -o $(BIN_DIR)cdata.o
 
-clean:
-	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
+# regran: #dependências para a regran
+#  	$(CC) -o $(BIN_DIR)regran $(SRC_DIR)regran.c -Wall
+
+# clean:
+# 	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
 
 
