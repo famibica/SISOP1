@@ -24,6 +24,30 @@
 
 /* VARIAVEIS GLOBAIS */
 int tid = 1; // Indica quantas threads já foram criadas e quais indices podem ser usadas
+int main_criada = 0; //Flag que guarda a informacao de que a main ja foi criada
+int filas_inicializadas = 0;
+ucontext_t* exit_context = NULL;
+
+
+/* Criacao das filas */
+PFILA2 fila_aptos = NULL; // Fila das threads que estao aptas
+PFILA2 fila_bloqueados = NULL; // Fila das threads que estao bloqueadas
+
+void inicializaFilas(){
+    //CreateFila2(fila_aptos); // Aloca a memoria para as filas
+    //CreateFila2(fila_bloqueados);
+    
+    filas_inicializadas = 1;
+    
+}
+
+int criarMainThread(){
+    
+}
+
+int terminateThread(){
+    
+}
 
 /*
 	CCREATE
@@ -32,11 +56,44 @@ int tid = 1; // Indica quantas threads já foram criadas e quais indices podem s
 int ccreate(void* (*start)(void*), void *arg)
 {
     
+    if (main_criada == 0){
+        criarMainThread();
+        
+    }
+    
+    
+    if (filas_inicializadas == 0){
+        inicializaFilas();
+    }
+    
+    
     TCB_t *newThread = (TCB_t*) malloc(sizeof(TCB_t));
     newThread->tid = tid++;
     newThread->state = APTO;
-    newThread->ticket = 1; // Valor dummie enquanto espera a funcao do cechin
-    //newThread->context = NULL; // nao sei que merda eh essa
+    newThread->ticket = 1; // Valor dummie 
+    
+    getcontext(&newThread->context);
+    
+    if (exit_context == NULL)
+    {
+        exit_context = (ucontext_t*) malloc(sizeof(ucontext_t));
+        if (exit_context== NULL) return -1; //erro no malloc
+        
+        exit_context->uc_link = NULL;
+        exit_context->uc_stack.ss_sp = (char*) malloc(SIGSTKSZ);
+        exit_context->uc_stack.ss_size = SIGSTKSZ;
+        
+        getcontext(exit_context);
+        makecontext(exit_context, (void (*)(void)) terminateThread, 0, NULL);
+    }
+    
+    newThread->context.uc_link = exit_context;
+    newThread->context.uc_stack.ss_sp = (char*) malloc(SIGSTKSZ);
+    if(newThread->context.uc_stack.ss_sp == NULL) return -1; //erro no malloc
+    newThread->context.uc_stack.ss_size = SIGSTKSZ;
+    
+    makecontext(&newThread->context, (void(*)(void))start, 1, arg);
+    
     
     tid++;
     
