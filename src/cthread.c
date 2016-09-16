@@ -81,7 +81,7 @@ int criarMainThread(){
 
 void terminarThread(){
     
-    return 1;
+    printf("terminei a thread");
     
 }
 
