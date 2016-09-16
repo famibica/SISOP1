@@ -28,25 +28,57 @@ int main_criada = 0; //Flag que guarda a informacao de que a main ja foi criada
 int filas_inicializadas = 0;
 ucontext_t* exit_context = NULL;
 
+/* THREADS MAIN E EXECUTANDO */
+TCB_t* mainThread = NULL; // thread main
+TCB_t* exeThread = NULL; // thread sendo executada
+
 
 /* Criacao das filas */
 FILA2 fila_aptos; // Fila das threads que estao aptas
 FILA2 fila_bloqueados; // Fila das threads que estao bloqueadas
+FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
+
+
+/* Aloca memoria para as filas */
 
 void inicializaFilas(){
-    CreateFila2(&fila_aptos); // Aloca a memoria para as filas
-    CreateFila2(&fila_bloqueados);
-    filas_inicializadas = 1;
     
+    fila_aptos = (FILA2) malloc(sizeof(FILA2));
+    if (fila_aptos == NULL)
+        return -1;
+    CreateFila2(&fila_aptos);
+    
+    fila_bloqueados = (FILA2) malloc(sizeof(FILA2));
+    if (fila_bloqueados == NULL)
+        return -1;
+    CreateFila2(&fila_bloqueados);
+    
+    fila_esperando = (FILA2) malloc(sizeof(FILA2));
+    if (fila_esperando == NULL)
+        return -1;
+    CreateFila2(&fila_esperando);
+    
+    filas_inicializadas = 1;
 }
 
 int criarMainThread(){
     
-    return 1;
+    mainThread = (TCB_t*) malloc(sizeof(TCB_t));
+    if (mainThread == NULL)
+        return -1;
+    
+    mainThread->state = EXECUCAO;
+    mainThread->tid = 0;
+    
+    getcontext(&mainThread->context);
+    exeThread = mainThread;
+    
+    main_criada = 1;
+    return 0;
     
 }
 
-int terminateThread(){
+void terminarThread(){
     
     return 1;
     
@@ -71,13 +103,14 @@ int ccreate(void* (*start)(void*), void *arg)
     
     
     TCB_t *newThread = (TCB_t*) malloc(sizeof(TCB_t));
+    if (newThread == NULL)
+        return -1;
+    
     newThread->tid = tid++;
     newThread->state = APTO;
     newThread->ticket = (Random2() % 256); // Valor dummie
     
     //printf("%i", newThread->ticket);
-    
-    getcontext(&newThread->context);
     
     if (exit_context == NULL)
     {
@@ -89,18 +122,18 @@ int ccreate(void* (*start)(void*), void *arg)
         exit_context->uc_stack.ss_size = SIGSTKSZ;
         
         getcontext(exit_context);
-        makecontext(exit_context, (void (*)(void)) terminateThread, 0, NULL);
+        makecontext(exit_context, (void (*)(void)) terminarThread, 0, NULL);
     }
     
+    getcontext(&newThread->context);
+
     newThread->context.uc_link = exit_context;
     newThread->context.uc_stack.ss_sp = (char*) malloc(SIGSTKSZ);
-    if(newThread->context.uc_stack.ss_sp == NULL) return -1; //erro no malloc
+    if(newThread->context.uc_stack.ss_sp == NULL)
+        return -1; //erro no malloc
     newThread->context.uc_stack.ss_size = SIGSTKSZ;
     
     makecontext(&newThread->context, (void(*)(void))start, 1, arg);
-    
-    
-    tid++;
     
     return newThread->tid;
 }
