@@ -30,12 +30,12 @@ ucontext_t* exit_context = NULL;
 
 
 /* Criacao das filas */
-PFILA2 fila_aptos = NULL; // Fila das threads que estao aptas
-PFILA2 fila_bloqueados = NULL; // Fila das threads que estao bloqueadas
+FILA2 fila_aptos = NULL; // Fila das threads que estao aptas
+FILA2 fila_bloqueados = NULL; // Fila das threads que estao bloqueadas
 
 void inicializaFilas(){
-    CreateFila2(fila_aptos); // Aloca a memoria para as filas
-    CreateFila2(fila_bloqueados);
+    CreateFila2(&fila_aptos); // Aloca a memoria para as filas
+    CreateFila2(&fila_bloqueados);
     filas_inicializadas = 1;
     
 }
@@ -75,7 +75,7 @@ int ccreate(void* (*start)(void*), void *arg)
     newThread->state = APTO;
     newThread->ticket = Random2(); // Valor dummie
     
-    printf("%i", newThread->ticket);
+    //printf("%i", newThread->ticket);
     
     getcontext(&newThread->context);
     
