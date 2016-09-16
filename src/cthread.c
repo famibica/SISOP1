@@ -40,7 +40,7 @@ FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 
 
 /* DISPATCHER */
-void Dispatcher(){
+void dispatcher(){
     
     TCB_t *proximaThread = NULL;
     
@@ -51,6 +51,8 @@ void Dispatcher(){
     DeleteAtIteratorFila2(&fila_aptos);
     
     setcontext(&proximaThread->context);
+    
+    
     //int aleatorio = random2();
 }
 
@@ -152,6 +154,8 @@ int ccreate(void* (*start)(void*), void *arg)
     newThread->context.uc_stack.ss_size = SIGSTKSZ;
     
     makecontext(&newThread->context, (void(*)(void))start, 1, arg);
+    
+    AppenFila2(&fila_aptos, newThread);
     
     return newThread->tid;
 }
