@@ -44,11 +44,11 @@ void Dispatcher(){
     
     TCB_t *proximaThread = NULL;
     
-    FirstFila2(fila_aptos);
+    FirstFila2(&fila_aptos);
     
-    proximaThread = GetAtIteratorFila2(fila_aptos);
+    proximaThread = GetAtIteratorFila2(&fila_aptos);
     
-    DeleteAtIteratorFila2(fila_aptos);
+    DeleteAtIteratorFila2(&fila_aptos);
     
     setcontext(&proximaThread->context);
     //int aleatorio = random2();
