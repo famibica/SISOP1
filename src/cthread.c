@@ -69,6 +69,7 @@ int criarMainThread(){
     
     mainThread->state = EXECUCAO;
     mainThread->tid = 0;
+    mainThread->ticket = 0;
     
     getcontext(&mainThread->context);
     exeThread = mainThread;
