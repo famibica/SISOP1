@@ -39,6 +39,23 @@ FILA2 fila_bloqueados; // Fila das threads que estao bloqueadas
 FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 
 
+/* DISPATCHER */
+void Dispatcher(){
+    
+    TCB_T *proximaThread = NULL;
+    
+    FirstFila2(fila_aptos);
+    
+    proximaThread = GetAtIteratorFila2(fila_aptos);
+    
+    DeleteAtIteratorFila2(fila_aptos);
+    
+    setcontext(&proximaThread->context);
+    //int aleatorio = random2();
+}
+
+
+
 /* Aloca memoria para as filas */
 
 void inicializaFilas(){
