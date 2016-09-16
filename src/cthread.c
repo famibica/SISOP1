@@ -30,8 +30,8 @@ ucontext_t* exit_context = NULL;
 
 
 /* Criacao das filas */
-FILA2 fila_aptos = NULL; // Fila das threads que estao aptas
-FILA2 fila_bloqueados = NULL; // Fila das threads que estao bloqueadas
+FILA2 fila_aptos; // Fila das threads que estao aptas
+FILA2 fila_bloqueados; // Fila das threads que estao bloqueadas
 
 void inicializaFilas(){
     CreateFila2(&fila_aptos); // Aloca a memoria para as filas
