@@ -73,7 +73,7 @@ int ccreate(void* (*start)(void*), void *arg)
     TCB_t *newThread = (TCB_t*) malloc(sizeof(TCB_t));
     newThread->tid = tid++;
     newThread->state = APTO;
-    newThread->ticket = Random2(); // Valor dummie
+    newThread->ticket = (Random2() % 256); // Valor dummie
     
     //printf("%i", newThread->ticket);
     
