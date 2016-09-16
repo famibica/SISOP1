@@ -155,7 +155,7 @@ int ccreate(void* (*start)(void*), void *arg)
     
     makecontext(&newThread->context, (void(*)(void))start, 1, arg);
     
-    AppenFila2(&fila_aptos, newThread);
+    AppendFila2(&fila_aptos, newThread);
     
     return newThread->tid;
 }
