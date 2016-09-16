@@ -43,19 +43,19 @@ FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 
 void inicializaFilas(){
     
-    fila_aptos = (FILA2) malloc(sizeof(FILA2));
+    /*fila_aptos = (FILA2) malloc(sizeof(FILA2));
     if (fila_aptos == NULL)
-        return -1;
+        return -1;*/
     CreateFila2(&fila_aptos);
     
-    fila_bloqueados = (FILA2) malloc(sizeof(FILA2));
+    /*fila_bloqueados = (FILA2) malloc(sizeof(FILA2));
     if (fila_bloqueados == NULL)
-        return -1;
+        return -1;*/
     CreateFila2(&fila_bloqueados);
     
-    fila_esperando = (FILA2) malloc(sizeof(FILA2));
+    /*fila_esperando = (FILA2) malloc(sizeof(FILA2));
     if (fila_esperando == NULL)
-        return -1;
+        return -1;*/
     CreateFila2(&fila_esperando);
     
     filas_inicializadas = 1;
