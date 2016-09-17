@@ -201,7 +201,7 @@ int cjoin(int tid)
     TCB_t* vaiEsperar;
     vaiEsperar = exeThread;
     vaiEsperar->state = BLOQUEADO;
-    AppendFila2(&fila_bloqueada,vaiEsperar);
+    AppendFila2(&fila_bloqueados,vaiEsperar);
     
     // A estrutura vai para a fila de esperando
     
@@ -216,7 +216,7 @@ int cjoin(int tid)
     exeThread = NULL;
     
     
-    scheduler();
+    dispatcher();
     return -1;
 }
 
@@ -308,13 +308,13 @@ TCB_t* acharTCB(int tid){
     }
     
     FirstFila2(&fila_bloqueados);
-    TCB_t* aux;
-    aux = GetAtIteratorFila2(&fila_bloqueados);
-    while(aux != NULL){
-        if(aux->tid == tid)
-            return aux;
+    TCB_t* aux2;
+    aux2 = GetAtIteratorFila2(&fila_bloqueados);
+    while(aux2 != NULL){
+        if(aux2->tid == tid)
+            return aux2;
         NextFila2(&fila_bloqueados);
-        aux = GetAtIteratorFila2(&fila_bloqueados);
+        aux2 = GetAtIteratorFila2(&fila_bloqueados);
     }
     
     // Se chegar aqui, não existe
@@ -331,7 +331,7 @@ int removerBloqueada(TCB_t* thread){
     TCB_t* aux;
     aux = GetAtIteratorFila2(&fila_bloqueados);
     while(aux != NULL){
-        if(aux->tid == thread->id){
+        if(aux->tid == thread->tid){
             DeleteAtIteratorFila2(&fila_bloqueados);
             return 0;
         }
