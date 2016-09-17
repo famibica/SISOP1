@@ -56,7 +56,7 @@ void dispatcher(){
     TCB_t *proximaThread = NULL;
     proximaThread = acharProximaThread(aleatorio);
     
-    printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
+    //printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
     
     exeThread = proximaThread;
     setcontext(&proximaThread->context);
@@ -166,7 +166,7 @@ int ccreate(void* (*start)(void*), void *arg)
     
     AppendFila2(&fila_aptos, newThread);
     
-    printf("Thread %d criada! Seu ticket eh: %d\n", newThread->tid, newThread->ticket);
+    //printf("Thread %d criada! Seu ticket eh: %d\n", newThread->tid, newThread->ticket);
     
     return newThread->tid;
 }
