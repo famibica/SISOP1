@@ -42,6 +42,9 @@ FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 
 quemEspera* alguemEsperando(TCB_t* thread); // Função que retorna caso alguém esteja esperando
 void dispatcher(); // dispatcher
+int tidEsperado(int tid);
+TCB_t* acharTCB(int tid);
+int removerBloqueada(TCB_t* thread);
 
 
 /* DISPATCHER */
@@ -97,11 +100,10 @@ void terminarThread(){
     quemEspera* quemEspera = alguemEsperando(exeThread);
     
     if (quemEspera != NULL){
-        
+        removerBloqueada(quemEspera->esperando);
         DeleteAtIteratorFila2(&fila_esperando);
         quemEspera->esperando->state = APTO;
         AppendFila2(&fila_aptos, quemEspera->esperando);
-        
         
     }
     
@@ -120,7 +122,6 @@ int ccreate(void* (*start)(void*), void *arg)
     
     if (main_criada == 0){
         criarMainThread();
-        
     }
     
     
@@ -182,7 +183,41 @@ int cyield(void)
 */
 int cjoin(int tid)
 {
-	return -1;
+    if (main_criada == 0){
+        criarMainThread();
+    }
+    
+    
+    if (filas_inicializadas == 0){
+        inicializaFilas();
+    }
+    
+    TCB_t* procurado = acharTCB(tid);
+    if (procurado == NULL)
+        return -1;
+    
+    // A thread vai para a fila de bloqueadas
+    
+    TCB_t* vaiEsperar;
+    vaiEsperar = exeThread;
+    vaiEsperar->state = BLOQUEADO;
+    AppendFila2(&fila_bloqueada,vaiEsperar);
+    
+    // A estrutura vai para a fila de esperando
+    
+    quemEspera* aux = (quemEspera*) malloc(sizeof(quemEspera));
+    if (aux == NULL)
+        return -1;
+    
+    aux->esperando = vaiEsperar;
+    aux->sendoEsperado = procurado;
+    aux->tidEsperada = tid;
+    AppendFila2(&fila_esperando,aux);
+    exeThread = NULL;
+    
+    
+    scheduler();
+    return -1;
 }
 
 /*
@@ -236,6 +271,74 @@ quemEspera* alguemEsperando(TCB_t* thread){
         aux = GetAtIteratorFila2(&fila_esperando);
     }
     return NULL;
+}
+/*
+ tidEsperado
+ Verifica se o tid passado como parametro já é esperado
+ 
+*/
+
+int tidEsperado(int tid){
+    FirstFila2(&fila_esperando);
+    quemEspera* aux;
+    aux = GetAtIteratorFila2(&fila_esperando);
+    while(aux != NULL){
+        if (aux->tidEsperada == tid)
+            return 1;
+        NextFila2(&fila_esperando);
+        aux = GetAtIteratorFila2(&fila_esperando);
+    }
+    return 0;
+}
+
+/*
+ acharTCB
+ Acha qual o TCB a ser esperado
+*/
+
+TCB_t* acharTCB(int tid){
+    FirstFila2(&fila_aptos);
+    TCB_t* aux;
+    aux = GetAtIteratorFila2(&fila_aptos);
+    while(aux != NULL){
+        if(aux->tid == tid)
+            return aux;
+        NextFila2(&fila_aptos);
+        aux = GetAtIteratorFila2(&fila_aptos);
+    }
+    
+    FirstFila2(&fila_bloqueados);
+    TCB_t* aux;
+    aux = GetAtIteratorFila2(&fila_bloqueados);
+    while(aux != NULL){
+        if(aux->tid == tid)
+            return aux;
+        NextFila2(&fila_bloqueados);
+        aux = GetAtIteratorFila2(&fila_bloqueados);
+    }
+    
+    // Se chegar aqui, não existe
+    return NULL;
+}
+
+/*
+ removerBloqueada
+ remove a estrutura quemEspera da fila de bloqueadas
+ */
+
+int removerBloqueada(TCB_t* thread){
+    FirstFila2(&fila_bloqueados);
+    TCB_t* aux;
+    aux = GetAtIteratorFila2(&fila_bloqueados);
+    while(aux != NULL){
+        if(aux->tid == thread->id){
+            DeleteAtIteratorFila2(&fila_bloqueados);
+            return 0;
+        }
+        NextFila2(&fila_bloqueados);
+        aux = GetAtIteratorFila2(&fila_bloqueados);
+    }
+    return -1;
 }
 
 
