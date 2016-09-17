@@ -41,7 +41,7 @@ FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 /* Funções auxiliares */
 
 quemEspera* alguemEsperando(TCB_t* thread); // Função que retorna caso alguém esteja esperando
-retira
+void dispatcher(); // dispatcher
 
 
 /* DISPATCHER */
