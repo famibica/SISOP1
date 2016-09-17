@@ -52,7 +52,7 @@ void removeFilaAptos(int tid);
 
 /* DISPATCHER */
 void dispatcher(){
-    int aleatorio = (random2() % 256);
+    int aleatorio = (Random2() % 256);
     TCB_t *proximaThread = NULL;
     proximaThread = acharProximaThread(aleatorio);
     
