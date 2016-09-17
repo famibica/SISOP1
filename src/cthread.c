@@ -45,23 +45,18 @@ void dispatcher(); // dispatcher
 int tidEsperado(int tid);
 TCB_t* acharTCB(int tid);
 int removerBloqueada(TCB_t* thread);
+int diferenca(int x, int y);
+TCB_t* acharProximaThread(int x);
+void removeFilaAptos(int tid);
 
 
 /* DISPATCHER */
 void dispatcher(){
-    
+    int aleatorio = (random2() % 256);
     TCB_t *proximaThread = NULL;
-    
-    FirstFila2(&fila_aptos);
-    
-    proximaThread = GetAtIteratorFila2(&fila_aptos);
-    
-    DeleteAtIteratorFila2(&fila_aptos);
-    
+    proximaThread = acharProximaThread(aleatorio);
     exeThread = proximaThread;
     setcontext(&proximaThread->context);
-    
-    //int aleatorio = random2();
 }
 
 
@@ -167,6 +162,8 @@ int ccreate(void* (*start)(void*), void *arg)
     makecontext(&newThread->context, (void(*)(void))start, 1, arg);
     
     AppendFila2(&fila_aptos, newThread);
+    
+    printf("Thread %d criada! Seu ticket eh: %d\n", newThread->tid, newThread->ticket);
     
     return newThread->tid;
 }
@@ -342,6 +339,64 @@ int removerBloqueada(TCB_t* thread){
         aux = GetAtIteratorFila2(&fila_bloqueados);
     }
     return -1;
+}
+
+/*
+ acharProximaThread
+ Recebe um valor e acha a thread com o valor de ticket mais proximo
+*/
+
+TCB_t* acharProximaThread(int x){
+    int menor_diferenca = 256;
+    TCB_t* aux = NULL;
+    TCB_t* proximaThread = NULL;
+    FirstFila2(&fila_aptos);
+    aux = GetAtIteratorFila2(&fila_aptos);
+    while (aux != NULL){
+        if (diferenca(aux->ticket, x) < menor_diferenca){
+            menor_diferenca = diferenca(aux->ticket, x);
+            proximaThread = aux;
+        }
+        NextFila2(&fila_aptos);
+        aux = GetAtIteratorFila2(&fila_aptos);
+    }
+    
+    removeFilaAptos(proximaThread->tid);
+    
+    return proximaThread;
+}
+
+/*
+ diferenca
+ Acha a diferenca entre dois inteiros
+*/
+
+int diferenca(int x, int y){
+    int z;
+    z = (x - y);
+    if(z < 0)
+        z = z * -1;
+    return z;
+}
+
+/*
+ removeFilaAptos
+ Retira a fila que vai ser executada pelo dispatcher
+*/
+
+void removeFilaAptos(int tid){
+    TCB_t* aux = NULL;
+    
+    FirstFila2(&fila_aptos);
+    aux = GetAtIteratorFila2(&fila_aptos);
+    
+    while (aux != NULL){
+        if (aux->tid == tid)
+            DeleteAtIteratorFila2(&fila_aptos);
+        NextFila2(&fila_aptos);
+        aux = GetAtIteratorFila2(&fila_aptos);
+    }
+    
 }
 
 
