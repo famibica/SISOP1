@@ -107,8 +107,8 @@ void terminarThread(){
         
     }
     
-    free(exeThread->context.uc_stack.ss_sp); // remove as threads
-    free(exeThread);
+    //free(exeThread->context.uc_stack.ss_sp); // remove as threads
+    //free(exeThread); //Os frees causavam segmentation fault
     exeThread = NULL;
     dispatcher();   // Chama o dispatcher novamente
 }
