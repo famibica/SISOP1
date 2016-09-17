@@ -58,8 +58,8 @@ void dispatcher(){
     
     DeleteAtIteratorFila2(&fila_aptos);
     
+    exeThread = proximaThread;
     setcontext(&proximaThread->context);
-    
     
     //int aleatorio = random2();
 }
@@ -103,7 +103,6 @@ void terminarThread(){
         removerBloqueada(quemEspera->esperando);
         DeleteAtIteratorFila2(&fila_esperando);
         quemEspera->esperando->state = APTO;
-        printf("A tid esperando é essa: Tid: %d", quemEspera->esperando->tid);
         if (quemEspera->esperando->tid == 0)
             AppendFila2(&fila_aptos, mainThread);
         else
