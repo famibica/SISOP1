@@ -26,8 +26,8 @@ typedef struct s_TCB {
 
 typedef struct quemEspera{
     TCB_t* esperando;
-    TCP_t* sendoEsperado;
+    TCB_t* sendoEsperado;
     int tidEsperada;
-};
+} quemEspera;
 
 #endif
