@@ -22,6 +22,12 @@ typedef struct s_TCB {
 					// 0: Criação; 1: Apto; 2: Execução; 3: Bloqueado e 4: Término
 	int 		ticket;		// "bilhete" de loteria da thread, para uso do escalonador
 	ucontext_t 	context;	// contexto de execução da thread (SP, PC, GPRs e recursos) 
-} TCB_t; 
+} TCB_t;
+
+typedef struct quemEspera{
+    TCB_t* esperando;
+    TCP_t* sendoEsperado;
+    int tidEsperada;
+};
 
 #endif

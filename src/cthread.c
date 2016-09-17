@@ -38,6 +38,11 @@ FILA2 fila_aptos; // Fila das threads que estao aptas
 FILA2 fila_bloqueados; // Fila das threads que estao bloqueadas
 FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 
+/* Funções auxiliares */
+
+quemEspera* alguemEsperando(TCB_t* thread); // Função que retorna caso alguém esteja esperando
+retira
+
 
 /* DISPATCHER */
 void dispatcher(){
@@ -62,19 +67,8 @@ void dispatcher(){
 
 void inicializaFilas(){
     
-    /*fila_aptos = (FILA2) malloc(sizeof(FILA2));
-    if (fila_aptos == NULL)
-        return -1;*/
     CreateFila2(&fila_aptos);
-    
-    /*fila_bloqueados = (FILA2) malloc(sizeof(FILA2));
-    if (fila_bloqueados == NULL)
-        return -1;*/
     CreateFila2(&fila_bloqueados);
-    
-    /*fila_esperando = (FILA2) malloc(sizeof(FILA2));
-    if (fila_esperando == NULL)
-        return -1;*/
     CreateFila2(&fila_esperando);
     
     filas_inicializadas = 1;
@@ -100,8 +94,21 @@ int criarMainThread(){
 
 void terminarThread(){
     
-    printf("terminei a thread");
+    quemEspera* quemEspera = alguemEsperando(exeThread);
     
+    if (quemEspera != NULL){
+        
+        DeleteAtIteratorFila2(&fila_esperando);
+        quemEspera->esperando->state = APTO;
+        AppendFila2(&fila_aptos, quemEspera->esperando);
+        
+        
+    }
+    
+    free(exeThread->context.uc_stack.ss_sp); // remove as threads
+    free(exeThread);
+    exeThread = NULL;
+    dispatcher();   // Chama o dispatcher novamente
 }
 
 /*
@@ -212,4 +219,47 @@ int csignal(csem_t *sem)
 int cidentify (char *name, int size){
     return -1;
 }
+
+
+/*
+ alguemEsperando
+ Verifica se tem alguma thread esperando a thread passada 
+ */
+quemEspera* alguemEsperando(TCB_t* thread){
+    FirstFila2(&fila_esperando);
+    quemEspera* aux;
+    aux = GetAtIteratorFila2(&fila_esperando);
+    while(aux != NULL){
+        if (aux->sendoEsperado == thread)
+            return aux;
+        NextFila2(&fila_esperando);
+        aux = GetAtIteratorFila2(&fila_esperando);
+    }
+    return NULL;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
