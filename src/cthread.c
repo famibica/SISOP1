@@ -103,7 +103,10 @@ void terminarThread(){
         removerBloqueada(quemEspera->esperando);
         DeleteAtIteratorFila2(&fila_esperando);
         quemEspera->esperando->state = APTO;
-        AppendFila2(&fila_aptos, quemEspera->esperando);
+        if (quemEspera->esperando->tid == 0)
+            AppendFila2(&fila_aptos, mainThread);
+        else
+            AppendFila2(&fila_aptos, quemEspera->esperando);
         
     }
     
