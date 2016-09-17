@@ -55,6 +55,9 @@ void dispatcher(){
     int aleatorio = (random2() % 256);
     TCB_t *proximaThread = NULL;
     proximaThread = acharProximaThread(aleatorio);
+    
+    printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
+    
     exeThread = proximaThread;
     setcontext(&proximaThread->context);
 }
