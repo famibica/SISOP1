@@ -48,6 +48,7 @@ int removerBloqueada(TCB_t* thread);
 int diferenca(int x, int y);
 TCB_t* acharProximaThread(int x);
 void removeFilaAptos(int tid);
+int jaEsperada(int tid);
 
 
 /* DISPATCHER */
@@ -195,6 +196,11 @@ int cjoin(int tid)
         inicializaFilas();
     }
     
+    if (jaEsperada(tid) == 1)
+        return -1;
+    
+    
+    
     TCB_t* procurado = acharTCB(tid);
     if (procurado == NULL)
         return -1;
@@ -291,6 +297,25 @@ int tidEsperado(int tid){
         NextFila2(&fila_esperando);
         aux = GetAtIteratorFila2(&fila_esperando);
     }
+    return 0;
+}
+
+/*
+ jaEsperada
+ Retorna 1 se a thread já é esperada por outra thread, 0 se não
+*/
+
+int jaEsperada(int tid){
+    FirstFila2(&fila_aptos);
+    quemEspera* aux;
+    aux = GetAtIteratorFila2(&fila_aptos);
+    while(aux != NULL){
+        if (aux->tidEsperada == tid)
+            return 1;
+        NextFila2(&fila_aptos);
+        aux = GetAtIteratorFila2(&fila_aptos);
+    }
+    
     return 0;
 }
 
@@ -401,6 +426,8 @@ void removeFilaAptos(int tid){
     }
     
 }
+
+
 
 
 
