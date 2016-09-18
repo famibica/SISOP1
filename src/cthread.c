@@ -42,15 +42,15 @@ FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 /* Funções auxiliares */
 
 quemEspera* alguemEsperando(TCB_t* thread); // Função que retorna caso alguém esteja esperando
-void dispatcher(); // dispatcher
-int tidEsperado(int tid);
-TCB_t* acharTCB(int tid);
-int removerBloqueada(TCB_t* thread);
-int diferenca(int x, int y);
-TCB_t* acharProximaThread(int x);
-void removeFilaAptos(int tid);
-int jaEsperada(int tid);
-int criarContextoDispatcher();
+void dispatcher(); // dispatcher, escolhe as threads futuras
+int tidEsperado(int tid); // ve se o tid ja ta sendo esperado
+TCB_t* acharTCB(int tid); // Encontra o TCB
+int removerBloqueada(TCB_t* thread); // Remove da fila de aptos e bota na fila de Aptos
+int diferenca(int x, int y); // Calcula o modulo da diferenca
+TCB_t* acharProximaThread(int x); // Ve a thread com a menor diferenca de ticket com o int x
+void removeFilaAptos(int tid); // Remove da fila de aptos e poe na bloqueada
+int jaEsperada(int tid); // ve se o tid ja esta sendo esperado
+int criarContextoDispatcher(); // Cria o contexto de dispatcher para nao chamar dispatcher()
 
 
 /* DISPATCHER */
@@ -290,13 +290,29 @@ int csignal(csem_t *sem)
     Identifica os membros do grupo
 */
 int cidentify (char *name, int size){
-    return -1;
+    char participantes[] = "Nome: Fernando Luis Spaniol Cartao: 228343 \n
+                            Nome: Mateus Claudino Bica Cartao: xxxxxx  \n
+                            Nome: Marcelo Haider Torres Cartao: xxxxxx \n";
+    int tamanho = sizeof(participantes);
+    int x = 0;
+    
+    if(size <= 0 || size > tamanho){
+        return -1;
+    }
+    
+    while (x < size){
+        *name = participantes[x];
+        name++;
+        x++;
+    }
+    
+    return 0;
 }
 
 
 /*
  alguemEsperando
- Verifica se tem alguma thread esperando a thread passada 
+ Verifica se tem alguma thread esperando a thread passada
  */
 quemEspera* alguemEsperando(TCB_t* thread){
     FirstFila2(&fila_esperando);
