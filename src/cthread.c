@@ -57,9 +57,10 @@ void dispatcher(){
     TCB_t *proximaThread = NULL;
     proximaThread = acharProximaThread(aleatorio);
     
-    //printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
+    printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
     
     exeThread = proximaThread;
+    proximaThread->state = EXECUCAO;
     setcontext(&proximaThread->context);
 }
 
@@ -201,6 +202,8 @@ int cjoin(int tid)
         return -1;
     }
     
+    printf("Sou a thread %d esperando a thread %d\n", exeThread->tid, tid);
+    
     
     
     TCB_t* procurado = acharTCB(tid);
@@ -314,7 +317,7 @@ int jaEsperada(int tid){
     while(aux != NULL){
         if (aux->tidEsperada == tid)
             return 1;
-        NextFila2(&fila_aptos);
+        NextFila2(&fila_esperando);
         aux = GetAtIteratorFila2(&fila_esperando);
     }
     
