@@ -196,8 +196,10 @@ int cjoin(int tid)
         inicializaFilas();
     }
     
-    if (jaEsperada(tid) == 1)
+    if (jaEsperada(tid) == 1){
+        printf("Thread %d ja sendo esperada", tid);
         return -1;
+    }
     
     
     
@@ -306,14 +308,14 @@ int tidEsperado(int tid){
 */
 
 int jaEsperada(int tid){
-    FirstFila2(&fila_aptos);
+    FirstFila2(&fila_esperando);
     quemEspera* aux;
-    aux = GetAtIteratorFila2(&fila_aptos);
+    aux = GetAtIteratorFila2(&fila_esperando);
     while(aux != NULL){
         if (aux->tidEsperada == tid)
             return 1;
         NextFila2(&fila_aptos);
-        aux = GetAtIteratorFila2(&fila_aptos);
+        aux = GetAtIteratorFila2(&fila_esperando);
     }
     
     return 0;
