@@ -186,7 +186,24 @@ int ccreate(void* (*start)(void*), void *arg)
 */
 int cyield(void)
 {
-    return -1;
+    if (main_criada == 0){
+        criarMainThread();
+    }
+    
+    
+    if (filas_inicializadas == 0){
+        inicializaFilas();
+    }
+    
+    TCB_t* rodando;
+    rodando = exeThread;
+    rodando->state = APTO;
+    
+    AppendFila2(&fila_aptos,rodando);
+    
+    swapcontext(&exeThread->context, contextoDispatcher);
+    
+    return 0;
 }
 
 /*
