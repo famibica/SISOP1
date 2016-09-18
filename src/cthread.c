@@ -55,13 +55,21 @@ int jaEsperada(int tid);
 void dispatcher(){
     int aleatorio = (Random2() % 256);
     TCB_t *proximaThread = NULL;
+    TCB_t *estavaExecutando = NULL;
     proximaThread = acharProximaThread(aleatorio);
+    if(proximaThread == NULL)
+        return;
     
     //printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
     
+    estavaExecutando = exeThread;
     exeThread = proximaThread;
     proximaThread->state = EXECUCAO;
-    setcontext(&proximaThread->context);
+    
+    if(estavaExecutando != NULL)
+        swapcontext(&estavaExecutando->context, &proximaThread->context);
+    else
+        setcontext(&proximaThread->context);
 }
 
 
@@ -214,6 +222,7 @@ int cjoin(int tid)
     TCB_t* vaiEsperar;
     vaiEsperar = exeThread;
     vaiEsperar->state = BLOQUEADO;
+    getcontext(&vaiEsperar->context);
     AppendFila2(&fila_bloqueados,vaiEsperar);
     
     // A estrutura vai para a fila de esperando
@@ -230,7 +239,7 @@ int cjoin(int tid)
     
     
     dispatcher();
-    return -1;
+    return 0;
 }
 
 /*

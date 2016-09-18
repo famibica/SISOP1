@@ -12,8 +12,12 @@
 #include "../include/cthread.h"
 #include <stdio.h>
 
+int	id0, id1;
+
 void* func0(void *arg) {
 	printf("Eu sou a thread ID0 imprimindo %d\n", *((int *)arg));
+    
+    cjoin(id1);
     
     return 0;
 }
@@ -25,8 +29,6 @@ void* func1(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-
-	int	id0, id1;
 	int i;
 
 	id0 = ccreate(func0, (void *)&i);
