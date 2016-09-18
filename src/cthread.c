@@ -27,6 +27,7 @@ int tid = 1; // Indica quantas threads já foram criadas e quais indices podem s
 int main_criada = 0; //Flag que guarda a informacao de que a main ja foi criada
 int filas_inicializadas = 0;
 ucontext_t* exit_context = NULL;
+ucontext_t contextoDispatcher = NULL;
 
 /* THREADS MAIN E EXECUTANDO */
 TCB_t* mainThread = NULL; // thread main
@@ -49,6 +50,7 @@ int diferenca(int x, int y);
 TCB_t* acharProximaThread(int x);
 void removeFilaAptos(int tid);
 int jaEsperada(int tid);
+int criarContextoDispatcher();
 
 
 /* DISPATCHER */
@@ -99,6 +101,8 @@ int criarMainThread(){
     exeThread = mainThread;
     
     main_criada = 1;
+    
+    criarContextoDispatcher();
     return 0;
     
 }
@@ -222,7 +226,6 @@ int cjoin(int tid)
     TCB_t* vaiEsperar;
     vaiEsperar = exeThread;
     vaiEsperar->state = BLOQUEADO;
-    getcontext(&vaiEsperar->context);
     AppendFila2(&fila_bloqueados,vaiEsperar);
     
     // A estrutura vai para a fila de esperando
@@ -235,10 +238,9 @@ int cjoin(int tid)
     aux->sendoEsperado = procurado;
     aux->tidEsperada = tid;
     AppendFila2(&fila_esperando,aux);
-    exeThread = NULL;
     
+    swapcontext(&exeThread->context, &contextoDispatcher);
     
-    dispatcher();
     return 0;
 }
 
@@ -437,6 +439,25 @@ void removeFilaAptos(int tid){
         NextFila2(&fila_aptos);
         aux = GetAtIteratorFila2(&fila_aptos);
     }
+    
+}
+
+/*
+ criarContextoDispatcher()
+ cria o contexto do dispatcher para ser usado nas funções
+*/
+
+int criarContextoDispatcher()
+{
+    getcontext(&contextoDispatcher);
+    contextoDispatcher.uc_link = 0;
+    contextoDispatcher.uc_stack.ss_sp = (char*) malloc(stackSize);
+    if (contextoDispatcher.uc_stack.ss_sp == NULL) {
+        return -1;
+    }
+    contextoDispatcher.uc_stack.ss_size = stackSize;
+    makecontext(&contextoDispatcher, (void(*)(void))dispatcher, 0);
+    return 0;
     
 }
 
