@@ -290,9 +290,7 @@ int csignal(csem_t *sem)
     Identifica os membros do grupo
 */
 int cidentify (char *name, int size){
-    char participantes[] = "Nome: Fernando Luis Spaniol Cartao: 228343 \n
-                            Nome: Mateus Claudino Bica Cartao: xxxxxx  \n
-                            Nome: Marcelo Haider Torres Cartao: xxxxxx \n";
+    char participantes[] = "Nome: Fernando Luis Spaniol Cartao: 228343 \n Nome: Mateus Claudino Bica Cartao: xxxxxx  \n Nome: Marcelo Haider Torres Cartao: xxxxxx \n";
     int tamanho = sizeof(participantes);
     int x = 0;
     
