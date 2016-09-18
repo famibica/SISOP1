@@ -61,7 +61,7 @@ void dispatcher(){
     if(proximaThread == NULL)
         return;
     
-    //printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
+    printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
     
     exeThread = proximaThread;
     proximaThread->state = EXECUCAO;
@@ -175,7 +175,7 @@ int ccreate(void* (*start)(void*), void *arg)
     
     AppendFila2(&fila_aptos, newThread);
     
-    //printf("Thread %d criada! Seu ticket eh: %d\n", newThread->tid, newThread->ticket);
+    printf("Thread %d criada! Seu ticket eh: %d\n", newThread->tid, newThread->ticket);
     
     return newThread->tid;
 }
@@ -194,6 +194,8 @@ int cyield(void)
     if (filas_inicializadas == 0){
         inicializaFilas();
     }
+    
+    printf("Eu sou a thread %d e estou realizandou um yield \n");
     
     TCB_t* rodando;
     rodando = exeThread;
@@ -231,7 +233,7 @@ int cjoin(int tid)
     if (procurado == NULL)
         return -1;
     
-    //printf("Sou a thread %d esperando a thread %d\n", exeThread->tid, tid);
+    printf("Sou a thread %d esperando a thread %d\n", exeThread->tid, tid);
     
     // A thread vai para a fila de bloqueadas
     
