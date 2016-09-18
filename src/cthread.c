@@ -294,7 +294,7 @@ int cidentify (char *name, int size){
     int tamanho = sizeof(participantes);
     int x = 0;
     
-    if(size <= 0{
+    if(size <= 0){
         printf("Erro! Size eh negativo. \n");
         return -1;
     }
