@@ -27,7 +27,7 @@ int tid = 1; // Indica quantas threads já foram criadas e quais indices podem s
 int main_criada = 0; //Flag que guarda a informacao de que a main ja foi criada
 int filas_inicializadas = 0;
 ucontext_t* exit_context = NULL;
-ucontext_t contextoDispatcher = NULL;
+ucontext_t* contextoDispatcher = NULL;
 
 /* THREADS MAIN E EXECUTANDO */
 TCB_t* mainThread = NULL; // thread main
