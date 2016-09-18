@@ -57,21 +57,16 @@ int criarContextoDispatcher();
 void dispatcher(){
     int aleatorio = (Random2() % 256);
     TCB_t *proximaThread = NULL;
-    TCB_t *estavaExecutando = NULL;
     proximaThread = acharProximaThread(aleatorio);
     if(proximaThread == NULL)
         return;
     
     //printf("Thread escolhida: %d, ticket: %d e o numero avaliado: %d \n", proximaThread->tid, proximaThread->ticket, aleatorio);
     
-    estavaExecutando = exeThread;
     exeThread = proximaThread;
     proximaThread->state = EXECUCAO;
     
-    if(estavaExecutando != NULL)
-        swapcontext(&estavaExecutando->context, &proximaThread->context);
-    else
-        setcontext(&proximaThread->context);
+    setcontext(&proximaThread->context);
 }
 
 
@@ -239,7 +234,7 @@ int cjoin(int tid)
     aux->tidEsperada = tid;
     AppendFila2(&fila_esperando,aux);
     
-    swapcontext(&exeThread->context, &contextoDispatcher);
+    swapcontext(&exeThread->context, contextoDispatcher);
     
     return 0;
 }
