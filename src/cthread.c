@@ -450,14 +450,14 @@ void removeFilaAptos(int tid){
 int criarContextoDispatcher()
 {
     contextoDispatcher = (ucontext_t*) malloc(sizeof(ucontext_t));
-    getcontext(&contextoDispatcher);
-    contextoDispatcher.uc_link = 0;
-    contextoDispatcher.uc_stack.ss_sp = (char*) malloc(SIGSTKSZ);
-    if (contextoDispatcher.uc_stack.ss_sp == NULL) {
-        return -1;
-    }
-    contextoDispatcher.uc_stack.ss_size = SIGSTKSZ;
-    makecontext(&contextoDispatcher, (void(*)(void))dispatcher, 0);
+    if (contextoDispatcher == NULL) return -1; //erro no malloc
+    
+    contextoDispatcher->uc_link = NULL;
+    contextoDispatcher->uc_stack.ss_sp = (char*) malloc(SIGSTKSZ);
+    contextoDispatcher->uc_stack.ss_size = SIGSTKSZ;
+    
+    getcontext(contextoDispatcher);
+    makecontext(contextoDispatcher, (void (*)(void)) dispatcher, 0, NULL);
     return 0;
     
 }
