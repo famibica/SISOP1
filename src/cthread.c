@@ -195,7 +195,7 @@ int cyield(void)
         inicializaFilas();
     }
     
-    printf("Eu sou a thread %d e estou realizandou um yield \n");
+    printf("Eu sou a thread %d e estou realizandou um yield \n", exeThread->tid);
     
     TCB_t* rodando;
     rodando = exeThread;
