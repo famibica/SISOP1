@@ -45,7 +45,7 @@ quemEspera* alguemEsperando(TCB_t* thread); // Função que retorna caso alguém
 void dispatcher(); // dispatcher, escolhe as threads futuras
 int tidEsperado(int tid); // ve se o tid ja ta sendo esperado
 TCB_t* acharTCB(int tid); // Encontra o TCB
-int removerBloqueada(TCB_t* thread); // Remove da fila de aptos e bota na fila de Aptos
+int removerBloqueada(TCB_t* thread); // Remove da fila de bloqueados e bota na fila de Aptos
 int diferenca(int x, int y); // Calcula o modulo da diferenca
 TCB_t* acharProximaThread(int x); // Ve a thread com a menor diferenca de ticket com o int x
 void removeFilaAptos(int tid); // Remove da fila de aptos e poe na bloqueada
@@ -264,7 +264,31 @@ int cjoin(int tid)
 */
 int csem_init(csem_t *sem, int count)
 {
-	return -1;
+	//Alocações caso necessário
+    if(main_criada == 0)
+        if(criarMainThread() == -1) return -1;
+
+    if (fila_aptos == NULL || fila_bloqueados == NULL || fila_esperando == NULL)
+    {
+        fila_aptos = (PFILA2) malloc(sizeof(PFILA2));
+        if (fila_aptos == NULL) return -1;
+        if (CreateFila2(fila_aptos) != 0) return -1;
+
+        fila_bloqueados = (PFILA2) malloc(sizeof(PFILA2));
+        if (fila_bloqueados == NULL) return -1;
+        if (CreateFila2(fila_bloqueados) != 0) return -1;
+
+        fila_esperando = (PFILA2) malloc(sizeof(PFILA2));
+        if (fila_esperando == NULL) return -1;
+        if (CreateFila2(fila_esperando) != 0) return -1;
+    }
+
+    sem->count = count;
+    sem->fila = (PFILA2) malloc(sizeof(PFILA2));
+    if (sem->fila == NULL) return -1;
+    if (CreateFila2(sem->fila) != 0) return -1;
+
+    return 0;
 }
 
 /*
@@ -273,7 +297,19 @@ int csem_init(csem_t *sem, int count)
 */
 int cwait(csem_t *sem)
 {
-	return -1;
+	sem->count--;
+    if (sem->count + 1 <= 0)
+    {
+        TCB_t *vaiEsperar;
+        vaiEsperar = exeThread;
+        if (vaiEsperar == NULL) return -1;
+        vaiEsperar->state = BLOQUEADO;
+        AppendFila2(sem->fila, vaiEsperar);
+        AppendFila2(&fila_aptos, vaiEsperar);
+
+        scheduler();
+    }
+    return 0;
 }
 
 /*
@@ -282,7 +318,22 @@ int cwait(csem_t *sem)
 */
 int csignal(csem_t *sem)
 {
-	return -1;
+	sem->count++;
+    //Se semáforo estiver livre
+    FirstFila2(sem->fila);
+    TCB_t* thread = GetAtIteratorFila2(sem->fila);
+    if (thread != NULL)
+    {
+        //Remove da fila de bloqueados
+        removerBloqueada(thread);
+        thread->state = APTO;
+        //Coloca de volta na fila de aptos
+        AppendFila2(&fila_aptos, thread);
+        //Retira da fila do semáforo
+        DeleteAtIteratorFila2(sem->fila);
+    }
+
+    return 0;
 }
 
 /*
@@ -290,7 +341,7 @@ int csignal(csem_t *sem)
     Identifica os membros do grupo
 */
 int cidentify (char *name, int size){
-    char participantes[] = "Nome: Fernando Luis Spaniol Cartao: 228343 \n Nome: Mateus Claudino Bica Cartao: xxxxxx  \n Nome: Marcelo Haider Torres Cartao: xxxxxx \n";
+    char participantes[] = "Nome: Fernando Luis Spaniol Cartao: 228343 \n Nome: Mateus Claudino Bica Cartao: 164383  \n Nome: Marcelo Haider Torres Cartao: xxxxxx \n";
     int tamanho = sizeof(participantes);
     int x = 0;
     
@@ -404,7 +455,7 @@ int removerBloqueada(TCB_t* thread){
     aux = GetAtIteratorFila2(&fila_bloqueados);
     while(aux != NULL){
         if(aux->tid == thread->tid){
-            DeleteAtIteratorFila2(&fila_bloqueados);
+            DeleteAtIteratorFila2(&fila_bloqueados); // DeleteAtIteratorFila2???
             return 0;
         }
         NextFila2(&fila_bloqueados);
@@ -430,7 +481,7 @@ TCB_t* acharProximaThread(int x){
             proximaThread = aux;
         }
         NextFila2(&fila_aptos);
-        aux = GetAtIteratorFila2(&fila_aptos);
+        aux = GetAtIteratorFila2(&fila_aptos); // DeleteAtIteratorFila2???
     }
     
     removeFilaAptos(proximaThread->tid);
