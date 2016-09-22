@@ -265,7 +265,8 @@ int cjoin(int tid)
 int csem_init(csem_t *sem, int count)
 {
 	//Alocações caso necessário
-    if(main_criada == 0)
+    /*
+     if(main_criada == 0)
         if(criarMainThread() == -1) return -1;
 
     if (fila_aptos == NULL || fila_bloqueados == NULL || fila_esperando == NULL)
@@ -288,6 +289,7 @@ int csem_init(csem_t *sem, int count)
     if (sem->fila == NULL) return -1;
     if (CreateFila2(sem->fila) != 0) return -1;
 
+     */
     return 0;
 }
 
@@ -297,6 +299,7 @@ int csem_init(csem_t *sem, int count)
 */
 int cwait(csem_t *sem)
 {
+    /*
 	sem->count--;
     if (sem->count + 1 <= 0)
     {
@@ -309,6 +312,7 @@ int cwait(csem_t *sem)
 
         scheduler();
     }
+     */
     return 0;
 }
 
@@ -318,6 +322,7 @@ int cwait(csem_t *sem)
 */
 int csignal(csem_t *sem)
 {
+    /*
 	sem->count++;
     //Se semáforo estiver livre
     FirstFila2(sem->fila);
@@ -332,6 +337,7 @@ int csignal(csem_t *sem)
         //Retira da fila do semáforo
         DeleteAtIteratorFila2(sem->fila);
     }
+     */
 
     return 0;
 }
