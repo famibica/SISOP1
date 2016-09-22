@@ -90,7 +90,7 @@ int criarMainThread(){
     
     mainThread->state = EXECUCAO;
     mainThread->tid = 0;
-    mainThread->ticket = 0;
+    mainThread->ticket = (Random2() % 256);
     
     getcontext(&mainThread->context);
     exeThread = mainThread;
@@ -269,20 +269,9 @@ int csem_init(csem_t *sem, int count)
      if(main_criada == 0)
         if(criarMainThread() == -1) return -1;
 
-    if (fila_aptos == NULL || fila_bloqueados == NULL || fila_esperando == NULL)
-    {
-        fila_aptos = (PFILA2) malloc(sizeof(PFILA2));
-        if (fila_aptos == NULL) return -1;
-        if (CreateFila2(fila_aptos) != 0) return -1;
-
-        fila_bloqueados = (PFILA2) malloc(sizeof(PFILA2));
-        if (fila_bloqueados == NULL) return -1;
-        if (CreateFila2(fila_bloqueados) != 0) return -1;
-
-        fila_esperando = (PFILA2) malloc(sizeof(PFILA2));
-        if (fila_esperando == NULL) return -1;
-        if (CreateFila2(fila_esperando) != 0) return -1;
-    }
+     if (filas_inicializadas == 0){
+     inicializaFilas();
+     }
 
     sem->count = count;
     sem->fila = (PFILA2) malloc(sizeof(PFILA2));
@@ -310,7 +299,7 @@ int cwait(csem_t *sem)
         AppendFila2(sem->fila, vaiEsperar);
         AppendFila2(&fila_aptos, vaiEsperar);
 
-        scheduler();
+        dispatcher();
     }
      */
     return 0;
