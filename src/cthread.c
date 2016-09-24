@@ -264,21 +264,19 @@ int cjoin(int tid)
 */
 int csem_init(csem_t *sem, int count)
 {
-	//Alocações caso necessário
-    /*
-     if(main_criada == 0)
-        if(criarMainThread() == -1) return -1;
+	if(main_criada == 0) //if criado para verificar se a main foi criada
+        if(criarMainThread() == -1) return -1; //se não foi, retorna -1
 
      if (filas_inicializadas == 0){
-     inicializaFilas();
+        inicializaFilas(); //inicializa filas se não estão inicializadas
      }
 
-    sem->count = count;
-    sem->fila = (PFILA2) malloc(sizeof(PFILA2));
-    if (sem->fila == NULL) return -1;
+    sem->count = count; //grava a quantidade de recursos que o semáforo vai ter
+    sem->fila = (PFILA2) malloc(sizeof(PFILA2)); //cria uma fila para este semáforo onde vão guardar as threads que estão na fila do mesmo
+    //verificações se deu algum erro na criação da fila
+    if (sem->fila == NULL) return -1;  
     if (CreateFila2(sem->fila) != 0) return -1;
 
-     */
     return 0;
 }
 
@@ -287,21 +285,20 @@ int csem_init(csem_t *sem, int count)
 	Requisita um recurso, se não tiver disponível, fica bloqueado
 */
 int cwait(csem_t *sem)
-{
-    /*
-	sem->count--;
-    if (sem->count + 1 <= 0)
+{   
+	sem->count--; //decrementa contador
+    if (sem->count + 1 <= 0) //tenho que confirmar só essa verificação mas acho que ta certo
     {
-        TCB_t *vaiEsperar;
+        TCB_t* vaiEsperar; //seleciona a thread que estava executando
         vaiEsperar = exeThread;
-        if (vaiEsperar == NULL) return -1;
         vaiEsperar->state = BLOQUEADO;
-        AppendFila2(sem->fila, vaiEsperar);
-        AppendFila2(&fila_aptos, vaiEsperar);
+        AppendFila2(&fila_bloqueados, vaiEsperar); //Coloca a thread que estava executando na fila de bloqueados geral
+        
+        AppendFila2(sem->fila, vaiEsperar); //Coloca a thread que estava executando na fila do semáforo
 
         dispatcher();
     }
-     */
+    
     return 0;
 }
 
@@ -310,13 +307,12 @@ int cwait(csem_t *sem)
 	Sinaliza a liberação de um recurso
 */
 int csignal(csem_t *sem)
-{
-    /*
-	sem->count++;
-    //Se semáforo estiver livre
-    FirstFila2(sem->fila);
-    TCB_t* thread = GetAtIteratorFila2(sem->fila);
-    if (thread != NULL)
+{    
+	sem->count++; //libera o recurso
+    
+    FirstFila2(sem->fila); //pega o primeiro da fila 'FIFO'
+    TCB_t* thread = GetAtIteratorFila2(sem->fila); //pega a thread da fila do semáforo
+    if (thread != NULL) //se a thread for diferente de null
     {
         //Remove da fila de bloqueados
         removerBloqueada(thread);
@@ -326,8 +322,7 @@ int csignal(csem_t *sem)
         //Retira da fila do semáforo
         DeleteAtIteratorFila2(sem->fila);
     }
-     */
-
+    
     return 0;
 }
 
