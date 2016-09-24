@@ -42,15 +42,15 @@ FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 /* Funções auxiliares */
 
 quemEspera* alguemEsperando(TCB_t* thread); // Função que retorna caso alguém esteja esperando
-void dispatcher(); // dispatcher
-int tidEsperado(int tid);
-TCB_t* acharTCB(int tid);
-int removerBloqueada(TCB_t* thread);
-int diferenca(int x, int y);
-TCB_t* acharProximaThread(int x);
-void removeFilaAptos(int tid);
-int jaEsperada(int tid);
-int criarContextoDispatcher();
+void dispatcher(); // dispatcher, escolhe as threads futuras
+int tidEsperado(int tid); // ve se o tid ja ta sendo esperado
+TCB_t* acharTCB(int tid); // Encontra o TCB
+int removerBloqueada(TCB_t* thread); // Remove da fila de bloqueados e bota na fila de Aptos
+int diferenca(int x, int y); // Calcula o modulo da diferenca
+TCB_t* acharProximaThread(int x); // Ve a thread com a menor diferenca de ticket com o int x
+void removeFilaAptos(int tid); // Remove da fila de aptos e poe na bloqueada
+int jaEsperada(int tid); // ve se o tid ja esta sendo esperado
+int criarContextoDispatcher(); // Cria o contexto de dispatcher para nao chamar dispatcher()
 
 
 /* DISPATCHER */
@@ -90,7 +90,7 @@ int criarMainThread(){
     
     mainThread->state = EXECUCAO;
     mainThread->tid = 0;
-    mainThread->ticket = 0;
+    mainThread->ticket = (Random2() % 256);
     
     getcontext(&mainThread->context);
     exeThread = mainThread;
@@ -264,31 +264,23 @@ int cjoin(int tid)
 */
 int csem_init(csem_t *sem, int count)
 {
-	//Alocações caso necessário
-	if(createdMain == 0)
-	if(createMainThread() == -1) return -1;
+	
+	printf("Criando com CSEM_INIT com count = %d \n", sem->count);
+	if(main_criada == 0) //if criado para verificar se a main foi criada
+        if(criarMainThread() == -1) return -1; //se não foi, retorna -1
 
-	if (readyQueue == NULL || blockedQueue == NULL || waitingList == NULL)
-	{
-    		readyQueue = (PFILA2) malloc(sizeof(PFILA2));
-		if (readyQueue == NULL) return -1;
-		if (CreateFila2(readyQueue) != 0) return -1;
+     if (filas_inicializadas == 0){
+        inicializaFilas(); //inicializa filas se não estão inicializadas
+     }
 
-		blockedQueue = (PFILA2) malloc(sizeof(PFILA2));
-		if (blockedQueue == NULL) return -1;
-		if (CreateFila2(blockedQueue) != 0) return -1;
+    sem->count = count; //grava a quantidade de recursos que o semáforo vai ter
+    sem->fila = (PFILA2) malloc(sizeof(PFILA2)); //cria uma fila para este semáforo onde vão guardar as threads que estão na fila do mesmo
+    //verificações se deu algum erro na criação da fila
+    if (sem->fila == NULL) return -1;  
+    if (CreateFila2(sem->fila) != 0) return -1;
+		printf("Criou CSEM_INIT corretamente \n");
 
-		waitingList = (PFILA2) malloc(sizeof(PFILA2));
-		if (waitingList == NULL) return -1;
-		if (CreateFila2(waitingList) != 0) return -1;
-    	}
-
-	sem->count = count;
-	sem->fila = (PFILA2) malloc(sizeof(PFILA2));
-	if (sem->fila == NULL) return -1;
-	if (CreateFila2(sem->fila) != 0) return -1;
-
-	return 0;
+    return 0;
 }
 
 /*
@@ -296,8 +288,25 @@ int csem_init(csem_t *sem, int count)
 	Requisita um recurso, se não tiver disponível, fica bloqueado
 */
 int cwait(csem_t *sem)
-{
-	return -1;
+{   
+	printf("Executando CWAIT() \n");
+	sem->count--; //decrementa contador
+	printf("CWAIT() - Count agora e %d \n", sem->count);
+    if (sem->count + 1 <= 0) //tenho que confirmar só essa verificação mas acho que ta certo
+    {
+	printf("CWAIT() - Selecionando a thread que estava executando \n");
+        TCB_t* thread; //seleciona a thread que estava executando
+        thread = exeThread;
+        thread->state = BLOQUEADO;
+	printf("CWAIT() - Colocando na fila de bloqueados %d \n", thread->tid);	
+        AppendFila2(&fila_bloqueados, thread); //Coloca a thread que estava executando na fila de bloqueados geral
+       	printf("CWAIT() - Removendo da fila de espera dentro do semaforo \n");
+        AppendFila2(sem->fila, thread); //Coloca a thread que estava executando na fila do semáforo
+
+        dispatcher();
+    }
+    
+    return 0;
 }
 
 /*
@@ -305,8 +314,28 @@ int cwait(csem_t *sem)
 	Sinaliza a liberação de um recurso
 */
 int csignal(csem_t *sem)
-{
-	return -1;
+{    
+	printf("Executando CSIGNAL() \n");
+	sem->count++; //libera o recurso
+	printf("CSIGNAL() - Count agora e %d \n", sem->count);
+    
+    FirstFila2(sem->fila); //pega o primeiro da fila 'FIFO'
+    TCB_t* thread = GetAtIteratorFila2(sem->fila); //pega a thread da fila do semáforo
+    if (thread != NULL) //se a thread for diferente de null
+    {
+	printf("CSIGNAL() - Removendo da fila de bloqueados a thread %d \n", thread->tid);
+        //Remove da fila de bloqueados
+        removerBloqueada(thread);
+        thread->state = APTO;
+        //Coloca de volta na fila de aptos
+	printf("CSIGNAL() - Colocando na fila de aptos \n");
+        AppendFila2(&fila_aptos, thread);
+        //Retira da fila do semáforo
+	printf("CSIGNAL() - Retirando do semaforo \n");
+        DeleteAtIteratorFila2(sem->fila);
+    }
+    
+    return 0;
 }
 
 /*
@@ -314,13 +343,28 @@ int csignal(csem_t *sem)
     Identifica os membros do grupo
 */
 int cidentify (char *name, int size){
-    return -1;
+    char participantes[] = "Nome: Fernando Luis Spaniol Cartao: 228343 \n Nome: Mateus Claudino Bica Cartao: 164383  \n Nome: Marcelo Haider Torres Cartao: xxxxxx \n";
+    int tamanho = sizeof(participantes);
+    int x = 0;
+    
+    if(size <= 0){
+        printf("Erro! Size eh negativo. \n");
+        return -1;
+    }
+    
+    while (x < size && x<tamanho){
+        *name = participantes[x];
+        name++;
+        x++;
+    }
+    
+    return 0;
 }
 
 
 /*
  alguemEsperando
- Verifica se tem alguma thread esperando a thread passada 
+ Verifica se tem alguma thread esperando a thread passada
  */
 quemEspera* alguemEsperando(TCB_t* thread){
     FirstFila2(&fila_esperando);
@@ -413,7 +457,7 @@ int removerBloqueada(TCB_t* thread){
     aux = GetAtIteratorFila2(&fila_bloqueados);
     while(aux != NULL){
         if(aux->tid == thread->tid){
-            DeleteAtIteratorFila2(&fila_bloqueados);
+            DeleteAtIteratorFila2(&fila_bloqueados); // DeleteAtIteratorFila2???
             return 0;
         }
         NextFila2(&fila_bloqueados);
@@ -439,7 +483,7 @@ TCB_t* acharProximaThread(int x){
             proximaThread = aux;
         }
         NextFila2(&fila_aptos);
-        aux = GetAtIteratorFila2(&fila_aptos);
+        aux = GetAtIteratorFila2(&fila_aptos); // DeleteAtIteratorFila2???
     }
     
     removeFilaAptos(proximaThread->tid);

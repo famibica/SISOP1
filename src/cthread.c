@@ -264,6 +264,8 @@ int cjoin(int tid)
 */
 int csem_init(csem_t *sem, int count)
 {
+	
+	printf("Criando com CSEM_INIT() com count = %d \n", sem->count);
 	if(main_criada == 0) //if criado para verificar se a main foi criada
         if(criarMainThread() == -1) return -1; //se não foi, retorna -1
 
@@ -276,6 +278,7 @@ int csem_init(csem_t *sem, int count)
     //verificações se deu algum erro na criação da fila
     if (sem->fila == NULL) return -1;  
     if (CreateFila2(sem->fila) != 0) return -1;
+		printf("CSEM_INIT() - Criou CSEM_INIT corretamente \n");
 
     return 0;
 }
@@ -286,15 +289,19 @@ int csem_init(csem_t *sem, int count)
 */
 int cwait(csem_t *sem)
 {   
+	printf("Executando CWAIT() \n");
 	sem->count--; //decrementa contador
+	printf("CWAIT() - Count agora e %d \n", sem->count);
     if (sem->count + 1 <= 0) //tenho que confirmar só essa verificação mas acho que ta certo
     {
-        TCB_t* vaiEsperar; //seleciona a thread que estava executando
-        vaiEsperar = exeThread;
-        vaiEsperar->state = BLOQUEADO;
-        AppendFila2(&fila_bloqueados, vaiEsperar); //Coloca a thread que estava executando na fila de bloqueados geral
-        
-        AppendFila2(sem->fila, vaiEsperar); //Coloca a thread que estava executando na fila do semáforo
+	printf("CWAIT() - Selecionando a thread que estava executando \n");
+        TCB_t* thread; //seleciona a thread que estava executando
+        thread = exeThread;
+        thread->state = BLOQUEADO;
+	printf("CWAIT() - Colocando na fila de bloqueados %d \n", thread->tid);	
+        AppendFila2(&fila_bloqueados, thread); //Coloca a thread que estava executando na fila de bloqueados geral
+       	printf("CWAIT() - Removendo da fila de espera dentro do semaforo \n");
+        AppendFila2(sem->fila, thread); //Coloca a thread que estava executando na fila do semáforo
 
         dispatcher();
     }
@@ -308,18 +315,23 @@ int cwait(csem_t *sem)
 */
 int csignal(csem_t *sem)
 {    
+	printf("Executando CSIGNAL() \n");
 	sem->count++; //libera o recurso
+	printf("CSIGNAL() - Count agora e %d \n", sem->count);
     
     FirstFila2(sem->fila); //pega o primeiro da fila 'FIFO'
     TCB_t* thread = GetAtIteratorFila2(sem->fila); //pega a thread da fila do semáforo
     if (thread != NULL) //se a thread for diferente de null
     {
+	printf("CSIGNAL() - Removendo da fila de bloqueados a thread %d \n", thread->tid);
         //Remove da fila de bloqueados
         removerBloqueada(thread);
         thread->state = APTO;
         //Coloca de volta na fila de aptos
+	printf("CSIGNAL() - Colocando na fila de aptos \n");
         AppendFila2(&fila_aptos, thread);
         //Retira da fila do semáforo
+	printf("CSIGNAL() - Retirando do semaforo \n");
         DeleteAtIteratorFila2(sem->fila);
     }
     
