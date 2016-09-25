@@ -274,7 +274,7 @@ int csem_init(csem_t *sem, int count)
      }
 
     sem->count = count; //grava a quantidade de recursos que o semáforo vai ter
-    sem->fila = (PFILA2) malloc(sizeof(PFILA2)); //cria uma fila para este semáforo onde vão guardar as threads que estão na fila do mesmo
+    sem->fila = (FILA2 *) malloc(sizeof(FILA2)); //cria uma fila para este semáforo onde vão guardar as threads que estão na fila do mesmo
     //verificações se deu algum erro na criação da fila
     if (sem->fila == NULL) return -1;  
     if (CreateFila2(sem->fila) != 0) return -1;

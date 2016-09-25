@@ -265,7 +265,7 @@ int cjoin(int tid)
 int csem_init(csem_t *sem, int count)
 {
 	
-	printf("Criando com CSEM_INIT com count = %d \n", sem->count);
+	printf("Criando com CSEM_INIT() com count = %d \n", sem->count);
 	if(main_criada == 0) //if criado para verificar se a main foi criada
         if(criarMainThread() == -1) return -1; //se não foi, retorna -1
 
@@ -274,11 +274,11 @@ int csem_init(csem_t *sem, int count)
      }
 
     sem->count = count; //grava a quantidade de recursos que o semáforo vai ter
-    sem->fila = (PFILA2) malloc(sizeof(PFILA2)); //cria uma fila para este semáforo onde vão guardar as threads que estão na fila do mesmo
+    sem->fila = (FILA2 *) malloc(sizeof(FILA2)); //cria uma fila para este semáforo onde vão guardar as threads que estão na fila do mesmo
     //verificações se deu algum erro na criação da fila
     if (sem->fila == NULL) return -1;  
     if (CreateFila2(sem->fila) != 0) return -1;
-		printf("Criou CSEM_INIT corretamente \n");
+		printf("CSEM_INIT() - Criou CSEM_INIT corretamente \n");
 
     return 0;
 }
