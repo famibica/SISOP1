@@ -309,8 +309,8 @@ int cwait(csem_t *sem)
         AppendFila2(sem->fila,  (void *)thread); //Coloca a thread que estava executando na fila do semáforo
 
 		swapcontext(&thread->context, contextoDispatcher);
-		
-        dispatcher();
+
+        
     }
     
     return 0;
