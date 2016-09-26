@@ -35,9 +35,9 @@ TCB_t* exeThread = NULL; // thread sendo executada
 
 
 /* Criacao das filas */
-FILA2 fila_aptos; // Fila das threads que estao aptas
-FILA2 fila_bloqueados; // Fila das threads que estao bloqueadas
-FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
+static FILA2 fila_aptos; // Fila das threads que estao aptas
+static FILA2 fila_bloqueados; // Fila das threads que estao bloqueadas
+static FILA2 fila_esperando; // Fila com as threads que estão em estado waiting
 
 /* Funções auxiliares */
 
@@ -139,8 +139,7 @@ int ccreate(void* (*start)(void*), void *arg)
         inicializaFilas();
     }
     
-    
-    TCB_t *newThread = (TCB_t*) malloc(sizeof(TCB_t));
+    TCB_t *newThread = malloc(sizeof(TCB_t));
     if (newThread == NULL)
         return -1;
     
@@ -308,8 +307,10 @@ int cwait(csem_t *sem)
         AppendFila2(&fila_bloqueados, (void *)thread); //Coloca a thread que estava executando na fila de bloqueados geral
        	printf("CWAIT() - Removendo da fila de espera dentro do semaforo \n");
         AppendFila2(sem->fila,  (void *)thread); //Coloca a thread que estava executando na fila do semáforo
-	
-        dispatcher();
+
+		swapcontext(&thread->context, contextoDispatcher);
+
+        
     }
     
     return 0;
@@ -473,7 +474,7 @@ int removerBloqueada(TCB_t* thread){
     aux = GetAtIteratorFila2(&fila_bloqueados);
     while(aux != NULL){
         if(aux->tid == thread->tid){
-            DeleteAtIteratorFila2(&fila_bloqueados); // DeleteAtIteratorFila2???
+            DeleteAtIteratorFila2(&fila_bloqueados); 
             return 0;
         }
         NextFila2(&fila_bloqueados);

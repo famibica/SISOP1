@@ -10,7 +10,7 @@
 
 
 int main(int argc, char *argv[]){
-	char c[105] = "";
+	char c[200] = "";
 	int i = 1;
 	i = cidentify(c, sizeof(c));
 	if(i == -1){
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]){
 		
 	}
 
-	char d[104] = "";
+	char d[200] = "";
 	i = cidentify(d, sizeof(d));
 
 	while(i<sizeof(d)){

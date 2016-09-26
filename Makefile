@@ -23,13 +23,10 @@ lib: cthread.o cdata.o
 	ar crs $(LIB_DIR)libcthread.a $(BIN_DIR)support.o $(BIN_DIR)cdata.o $(BIN_DIR)cthread.o
 
 cthread.o: $(SRC_DIR)cthread.c
-	$(CC) -c $(SRC_DIR)cthread.c -Wall -o $(BIN_DIR)cthread.o -g
+	$(CC) -c $(SRC_DIR)cthread.c -Wall -o $(BIN_DIR)cthread.o
 
 cdata.o: $(SRC_DIR)cdata.c
-	$(CC) -c $(SRC_DIR)cdata.c -Wall -o $(BIN_DIR)cdata.o -g
-
-# regran: #dependências para a regran
-#  	$(CC) -o $(BIN_DIR)regran $(SRC_DIR)regran.c -Wall
+	$(CC) -c $(SRC_DIR)cdata.c -Wall -o $(BIN_DIR)cdata.o
 
 clean:
 	find $(BIN_DIR) $(LIB_DIR) -type f ! -name 'support.o' ! -name 'Makefile' -delete
